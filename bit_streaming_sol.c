@@ -31,11 +31,34 @@
  * @param input_len Number of elements in the input array
  * * @return         >>> What should we do here??? <<<
  */
-void pack_sensor_data(const uint8_t* input, size_t input_len);
+void pack_sensor_data(const uint8_t* input, size_t input_len, uint8_t* output, size_t output_len);
 
-void pack_sensor_data(const uint8_t* input, size_t input_len)
+void pack_sensor_data(const uint8_t* input, size_t input_len, uint8_t* output, size_t output_len)
 {
+    uint8_t current_byte = 0;
+    int8_t current_bit = 7;
 
+    for (int i = 0; i < input_len; i++)
+    {
+        uint8_t post_masked_data = input[i] & 0x1F;
+
+        for (int j = 4; j >= 0; j--)
+        {
+            // Select current bit to copy over
+            uint8_t bit_to_out = (post_masked_data >> j) & 0x01;
+
+            // Copy bit_to_out to our output buffer
+            output[current_byte] |= bit_to_out << current_bit;
+
+            current_bit--;
+
+            if (current_bit < 0)
+            {
+                current_byte++;
+                current_bit = 7;
+            }
+        }
+    }
 }
 
 
